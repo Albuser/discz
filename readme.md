@@ -2,7 +2,7 @@
 1. Install the Python package dependencies with pip.
 2. Enter your Spotify API access information (client id, client secret, and redirect url) in ```settings.py```
 3. Install Redis (I'm on Windows, so I used Windows Subsystem for Linux to run the server)
-4. Boot up the Redis server
+4. Boot up a Redis server
 5. Run ```main.py```
 
 ## Problem Statement:
