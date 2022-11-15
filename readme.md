@@ -1,8 +1,9 @@
 ## Instructions to Run:
 1. Install the Python package dependencies with pip.
-2. Install Redis (I'm on Windows, so I used Windows Subsystem for Linux to run the server)
-3. Boot up the Redis server
-4. Run ```main.py```
+2. Enter your Spotify API access information (client id, client secret, and redirect url) in ```settings.py```
+3. Install Redis (I'm on Windows, so I used Windows Subsystem for Linux to run the server)
+4. Boot up the Redis server
+5. Run ```main.py```
 
 ## Problem Statement:
 Use the Spotify API to get all artists as fast as possible. Need to capture: 'Artist URI', 'Artist Name', 'Genres', 'Popularity'. You may only use one (1) API Token.
