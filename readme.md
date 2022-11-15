@@ -11,16 +11,16 @@ Use the Spotify API to get all artists as fast as possible. Need to capture: 'Ar
 The speed of our program will be limited by the rate limits Spotify imposes on their API. This is based on the token, rather than the IP making the request, so we cannot bypass the rate limit simply by adding proxies.
 
 Of the available endpoints, there are a few options that return lists of artists:
-    1. Get Several Artists
-        - This returns artist objects with the URIs we pass to the endpoint. This is clearly not very useful.
-    2. Search
-        - Allows us to search artists matching a keyword string, optionally filtering on year, artist, and genre.
-        - Promising in that it returns up to 50 artists in a single request, however the index of results for a single query stops at 1000.
-        - It is unclear how to perform a systematic exploration of all artists in the catalog with a set of search criteria.
-    3. Get Related Artists
-        - Given an Artist URI, returns a set of related artists.
-        - Empirically, this set consists of 20 artists, but this is not specified explicitly in the documentation.
-        - We will primarily use this endpoint, as it provides a clear path forward.
+1. Get Several Artists
+- This returns artist objects with the URIs we pass to the endpoint. This is clearly not very useful.
+2. Search
+- Allows us to search artists matching a keyword string, optionally filtering on year, artist, and genre.
+- Promising in that it returns up to 50 artists in a single request, however the index of results for a single query stops at 1000.
+- It is unclear how to perform a systematic exploration of all artists in the catalog with a set of search criteria.
+3. Get Related Artists
+- Given an Artist URI, returns a set of related artists.
+- Empirically, this set consists of 20 artists, but this is not specified explicitly in the documentation.
+- We will primarily use this endpoint, as it provides a clear path forward.
 
 ## Definitions:
 1. We say that Artist A is 'related' to Artist B if the latter is among the results of calling 'Get Related Artists' on the former.
