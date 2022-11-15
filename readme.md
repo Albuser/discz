@@ -1,13 +1,13 @@
-Instructions to Run:
-    1. Install the Python module dependencies with pip.
-    2. Install Redis (I'm on Windows, so I used Windows Subsystem for Linux to run the server)
-    3. Boot up the Redis server
-    4. Run main.py
+## Instructions to Run:
+1. Install the Python package dependencies with pip.
+2. Install Redis (I'm on Windows, so I used Windows Subsystem for Linux to run the server)
+3. Boot up the Redis server
+4. Run ```main.py```
 
-Problem Statement:
+## Problem Statement:
 Use the Spotify API to get all artists as fast as possible. Need to capture: 'Artist URI', 'Artist Name', 'Genres', 'Popularity'. You may only use one (1) API Token.
 
-Introduction:
+## Introduction:
 The speed of our program will be limited by the rate limits Spotify imposes on their API. This is based on the token, rather than the IP making the request, so we cannot bypass the rate limit simply by adding proxies.
 
 Of the available endpoints, there are a few options that return lists of artists:
@@ -22,13 +22,13 @@ Of the available endpoints, there are a few options that return lists of artists
         - Empirically, this set consists of 20 artists, but this is not specified explicitly in the documentation.
         - We will primarily use this endpoint, as it provides a clear path forward.
 
-Definitions:
-    1. We say that Artist A is 'related' to Artist B if the latter is among the results of calling 'Get Related Artists' on the former.
-    2. Let G = (V, E) be a directed graph where V is the set of artists in the Spotify catalog. A node v1 is adjacent to a node v2 if and only if v1 is related to v2.
+## Definitions:
+1. We say that Artist A is 'related' to Artist B if the latter is among the results of calling 'Get Related Artists' on the former.
+2. Let G = (V, E) be a directed graph where V is the set of artists in the Spotify catalog. A node v1 is adjacent to a node v2 if and only if v1 is related to v2.
 
-Assumptions:
-    1. G is connected, that is, it has a single connected component.
-    2. G does not change while we run this program.
+## Assumptions:
+1. G is connected, that is, it has a single connected component.
+2. G does not change while we run this program.
 
 With these assumptions, the problem statement resembles an online graph exploration problem. In contrast to the typical formulation however, we have the luxury of persistent storage. This allows us to determine whether a node has been previously visited and backtrack to a previous node without having to traverse a path to get there.
 
@@ -38,9 +38,9 @@ Therefore, to find all artists as fast as possible, we simply need to make sure 
 
 Caveat: As explained earlier, the 'Search' endpoint returns more artists in a single request, so we could hypothetically find every artist faster if we explored the entire graph using 'Search'. I don't see a way to do this, sadly.
 
-Technical Design:
+## Technical Design:
 
-NOTE: The Client Credentials authorization workflow used here requires refreshing the token after one hour. To prevent this code from actually being used to scrape the entire artist database, we do not refresh the token automatically, so the get_related_artist requests will all start failing when the token expires.
+**NOTE:** The Client Credentials authorization workflow used here requires refreshing the token after one hour. To prevent this code from actually being used to scrape the entire artist database, we do not refresh the token automatically, so the get_related_artist requests will all start failing when the token expires.
 
 We explore the graph via breadth first search using parallel processes starting from different nodes. We maintain an LRU cache for quickly identifying whether a node has recently been seen. This is why we opt for breadth-first instead of depth-first. Presumably, if A is related to B and B is related to C, A has a decent chance of being related to C. 
 
