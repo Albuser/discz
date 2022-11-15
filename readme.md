@@ -50,3 +50,5 @@ We use a SQL database to store the artists we have explored. We opt for sqlite3,
 While we are not cut off due to rate limiting we continually send http requests to 'Get Related Artists' from a queue of artists to explore. Because the queue may get quite large, it may not be possible to store the whole thing in memory. Thus, we use a task queue to manage the available tasks. I've opted for redis, because I've been meaning to learn how redis works anyways.
 
 After we explore a node, we check the LRU cache for the adjacent nodes and update the cache. If any are not in the cache, we check for them in the SQL database. If they are not in the database, we add them to the database, then push them to the task queue to be explored later. If we are cut off by rate limiting, we pause the process for however long the Spotify API instructs us to.
+
+With this approach, I was able to get roughly 2,000 artists per minute. If you are not hitting the rate limit with 15 processes (this will depend on your network and hardware, presumably), you may need to increase the number of processes. This setting is controlled by ```PROCESSES``` in ```settings.py```.
