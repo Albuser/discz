@@ -34,16 +34,12 @@ Caveat: As explained earlier, the 'Search' endpoint returns more artists in a si
 
 Technical Design:
 
-NOTE: The Client Credentials authorization workflow used here requires refreshing the token after one hour. To prevent this code from being used to scrape the entire artist database, we do not refresh the token automatically, so the get_related_artist requests will all start failing eventually.
+NOTE: The Client Credentials authorization workflow used here requires refreshing the token after one hour. To prevent this code from actually being used to scrape the entire artist database, we do not refresh the token automatically, so the get_related_artist requests will all start failing when the token expires.
 
-We explore the graph via breadth first search. We maintain an LRU cache for quickly identifying whether a node has recently been seen. This is why we opt for breadth-first instead of depth-first. Presumably, if A is related to B and B is related to C, A has a decent chance of being related to C. 
+We explore the graph via breadth first search using parallel processes starting from different nodes. We maintain an LRU cache for quickly identifying whether a node has recently been seen. This is why we opt for breadth-first instead of depth-first. Presumably, if A is related to B and B is related to C, A has a decent chance of being related to C. 
 
 We use a SQL database to store the artists we have explored. We opt for sqlite3, because it is simple, lightweight, and built into Python.
 
-While we are not cut off due to rate limiting we continually send http requests to 'Get Related Artists' from a queue of artists to explore.
+While we are not cut off due to rate limiting we continually send http requests to 'Get Related Artists' from a queue of artists to explore. Because the queue may get quite large, it may not be possible to store the whole thing in memory. Thus, we use a task queue to manage the available tasks. I've opted for redis, because I've been meaning to learn how redis works anyways.
 
-Because the queue may get quite large, it will not be possible to store the whole thing in memory. Thus, we use a task queue to manage the available tasks. I've opted for redis, because I've been meaning to learn how redis works anyways.
-
-In testing, I found that performing the requests in a blocking manner with a single process did not come close to hitting the rate limit. To do this As Fast As Possible, we need to make requests in parallel processes.
-
-After we explore a node, we check the LRU cache for the adjacent nodes and update the cache. If any are not in the cache, we check for them in the SQL database. If they are not in the database, we add them to the database, then push them to the task queue to be explored later.
+After we explore a node, we check the LRU cache for the adjacent nodes and update the cache. If any are not in the cache, we check for them in the SQL database. If they are not in the database, we add them to the database, then push them to the task queue to be explored later. If we are cut off by rate limiting, we pause the process for however long the Spotify API instructs us to.
